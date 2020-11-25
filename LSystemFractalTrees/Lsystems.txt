@@ -1,0 +1,4 @@
+Tree,F,30,150,250,500,F->FF+[+F-F-F]-[-F+F+F]
+Plant,X,30,200,250,500,X->F+[[X]-X]-F[-FX]+X F->FF
+Sierpinski,F-G-G,120,500,500,500,F->F-G+F+G-F G->GG 
+Dragon,FX,90,500,250,250,X->X+YF+ Y->-FX-Y 
