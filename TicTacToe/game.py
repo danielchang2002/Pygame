@@ -12,6 +12,8 @@ class Game:
         self.dim = dim
         self.screen = pygame.display.set_mode(dim)
         self.board = Board()
+        self.player = 'O'
+        self.comp = 'X'
 
     def run(self):
         pygame.init()
@@ -20,8 +22,10 @@ class Game:
             for event in pygame.event.get():
                 if (event.type == pygame.QUIT):
                     running = False
-            screen.fill((0, 0, 0))
-            board.draw(screen, dim)
+                if (event.type == pygame.MOUSEBUTTONDOWN):
+                    self.handleClick(pygame.get_pos())
+            self.screen.fill((0, 0, 0))
+            self.draw()
             pygame.display.flip()
 
         pygame.quit()
@@ -41,7 +45,7 @@ class Game:
 
     def drawPieces(self):
         for i in range(9):
-            piece = self.board[i]
+            piece = self.board.board[i]
             if piece == '-':
                 continue
             region = self.getRegion(i)
@@ -66,3 +70,14 @@ class Game:
         pygame.draw.line(self.screen, GREEN, (region[0], region[1]), (region[2], region[3]), width = 5)
         pygame.draw.line(self.screen, GREEN, (region[2], region[1]), (region[0], region[3]), width = 5)
     
+    def getI(self, pos):
+        pass
+
+    def handleClick(self, pos):
+        i = getI(pos)
+        self.board.move(i)
+            
+
+
+g = Game((500, 500))
+g.run()
