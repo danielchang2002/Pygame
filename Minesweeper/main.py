@@ -1,16 +1,11 @@
-class Board:
-    def __init__(self, size: tuple):
-        self.size = size
-        self.board = [[False * 10] * 10]
-        print(self.board)
+import sys
+from game import Game
 
-    def print(self):
-        for r in self.board:
-            for c in r:
-                print(c, end="")
-            print()
+def main():
+    size = int(sys.argv[1]), int(sys.argv[2])
+    prob = float(sys.argv[3])
+    g = Game(size, prob)
+    g.run()
 
-
-b = Board((5, 5))
-b.print()
-print('hi')
+if __name__ == '__main__':
+    main()
