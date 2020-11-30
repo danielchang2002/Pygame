@@ -44,14 +44,12 @@ class Board:
         if piece.getHasBomb():
             self.lost = True
         else:
-            self.won = self.checkWon() 
-    
-
+            self.won = self.checkWon()
     
     def checkWon(self):
         for row in self.board:
             for piece in row:
-                if piece.getHasBomb() and not piece.getClicked():
+                if not piece.getHasBomb() and not piece.getClicked():
                     return False
         return True
 
@@ -74,10 +72,9 @@ class Board:
             for c in range(col - 1, col + 2):
                 if r == row and c == col:
                     continue
-                try:
-                    neighbors.append(self.board[r][c])
-                except:
-                    pass
+                if r < 0 or r >= self.size[0] or c < 0 or c >= self.size[1]:
+                    continue
+                neighbors.append(self.board[r][c])
     
     def setNumAround(self):
         for row in self.board:
