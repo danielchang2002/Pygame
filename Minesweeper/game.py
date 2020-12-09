@@ -46,7 +46,6 @@ class Game:
                 running = False
         pygame.quit()
         
-
     def draw(self):
         topLeft = (0, 0)
         for row in self.board.getBoard():
@@ -71,8 +70,6 @@ class Game:
         self.board.handleClick(self.board.getPiece(index), flag)
 
     def win(self):
-        pygame.mixer.init()
         sound = pygame.mixer.Sound('win.wav')
         sound.play()
         sleep(3)
-        pygame.mixer.quit()

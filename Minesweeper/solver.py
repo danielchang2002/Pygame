@@ -1,3 +1,5 @@
+import pyautogui
+
 class Solver:
     def __init__(self, board):
         self.board = board
@@ -25,6 +27,7 @@ class Solver:
         for piece in neighbors:
             if not piece.getFlagged():
                 self.board.handleClick(piece, False)
+
 
     def flagAll(self, neighbors):
         for piece in neighbors:
