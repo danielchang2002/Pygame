@@ -1,83 +1,135 @@
 import pygame
 from board import Board
+from time import sleep
+from solver import Solver
 
-WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
 
-BUFFER = 10
-
-class Game:
-    def __init__(self, dim):
-        self.dim = dim
-        self.screen = pygame.display.set_mode(dim)
-        self.board = Board()
+class Game():
+    def __init__(self, screenSize):
+        self.screenSize = screenSize
+        self.pieceSize = self.screenSize[0] / 3, self.screenSize[1] / 3
         self.player = 'O'
-        self.comp = 'X'
+        self.computer = 'X'
+        self.board = Board(None)
+        self.compTurn = False
+        self.state = 'ask'
 
     def run(self):
         pygame.init()
+        self.screen = pygame.display.set_mode(self.screenSize)
         running = True
         while running:
             for event in pygame.event.get():
                 if (event.type == pygame.QUIT):
                     running = False
                 if (event.type == pygame.MOUSEBUTTONDOWN):
-                    self.handleClick(pygame.get_pos())
-            self.screen.fill((0, 0, 0))
-            self.draw()
+                    self.handleClick(pygame.mouse.get_pos())
+            if (self.state == 'game'):
+                self.game()
+            else:
+                self.ask()
             pygame.display.flip()
-
         pygame.quit()
+    
+    def ask(self):
+        self.screen.fill((0, 0, 0))
+        self.drawX((1, 0))
+        self.drawO((1, 2))
+    
+    def game(self):
+        self.draw()
+        if (self.checkEnd()):
+            self.state = 'ask'
+            self.board = Board(None)
+            self.compTurn = False
+        if (self.compTurn):
+            self.compMove()
+    
+    def checkEnd(self):
+        winBoard = ()
+        if (self.board.getHasWon(self.player)):
+            winBoard = self.board.getHasWon(self.player)
+        elif (self.board.getHasWon(self.computer)):
+            winBoard = self.board.getHasWon(self.computer)
+        elif (not self.board.isFull()):
+            return False
+        for row, col in winBoard:
+            self.highlight((row, col))
+        pygame.display.flip()
+        sleep(3)
+        return True
+
+
+    def highlight(self, index):
+        region = self.getRegion(index)
+        pygame.draw.rect(self.screen, BLUE, region, width = 10)
 
     def draw(self):
-        self.drawLines()
+        self.screen.fill((0, 0, 0))
         self.drawPieces()
-
-    def drawLines(self):
-        width, height = self.dim[0], self.dim[1]
-        x1, x2 = width * (1/3), width * (2/3)
-        y1, y2 = height * (1/3), height * (2/3)
-        pygame.draw.line(self.screen, WHITE, (0, y1), (width, y1))
-        pygame.draw.line(self.screen, WHITE, (0, y2), (width, y2))
-        pygame.draw.line(self.screen, WHITE, (x1, 0), (x1, height))
-        pygame.draw.line(self.screen, WHITE, (x2, 0), (x2, height))
+        self.drawLines()
 
     def drawPieces(self):
-        for i in range(9):
-            piece = self.board.board[i]
-            if piece == '-':
-                continue
-            region = self.getRegion(i)
-            if piece == 'O':
-                self.drawO(region)
-            else:
-                self.drawX(region)
+        for row in range(3):
+            for col in range(3):
+                piece = self.board.getPiece((row, col))
+                if (piece == 'X'):
+                    self.drawX((row, col))
+                elif (piece == 'O'):
+                    self.drawO((row, col))
 
-    def getRegion(self, i):
-        width, height = self.dim[0] / 3, self.dim[1] / 3
-        x1 = (i % 3) * width
-        y1 = (i // 3) * height
-        return (x1 + BUFFER, y1 + BUFFER, x1 + width - BUFFER, y1 + height - BUFFER)
+    def drawX(self, index):
+        region = self.getRegion(index)
+        pygame.draw.line(self.screen, RED, region.topleft, region.bottomright, width = 10)
+        pygame.draw.line(self.screen, RED, region.topright, region.bottomleft, width = 10)
 
-    def drawO(self, region):
-        width = region[2] - region[0]
-        height = region[3] - region[1]
-        rect = pygame.Rect(region[0], region[1], width, height)
-        pygame.draw.ellipse(self.screen, RED, rect, 5)
-
-    def drawX(self, region):
-        pygame.draw.line(self.screen, GREEN, (region[0], region[1]), (region[2], region[3]), width = 5)
-        pygame.draw.line(self.screen, GREEN, (region[2], region[1]), (region[0], region[3]), width = 5)
+    def drawO(self, index):
+        region = self.getRegion(index)
+        pygame.draw.ellipse(self.screen, GREEN, region, width=10)
     
-    def getI(self, pos):
-        pass
+    def getRegion(self, index):
+        buffer = 10
+        leftTop = int(index[1] * self.pieceSize[0] + buffer), int(index[0] * self.pieceSize[1] + buffer)
+        widthHeight = int(self.pieceSize[0] - buffer), int(self.pieceSize[1] - buffer)
+        rect = pygame.Rect(leftTop, widthHeight)
+        return rect
+    
+    def drawLines(self):
+        for i in range(1, 3):
+            x = i * (self.screenSize[0] / 3)
+            pygame.draw.line(self.screen, WHITE, (x, 0), (x, self.screenSize[1]), width = 10)
+        for i in range(1, 3):
+            y = i * (self.screenSize[1] / 3)
+            pygame.draw.line(self.screen, WHITE, (0, y), (self.screenSize[0], y), width = 10) 
 
-    def handleClick(self, pos):
-        i = getI(pos)
-        self.board.move(i)
-            
+    def getIndex(self, position):
+        return int(position[1] / self.pieceSize[1]), int(position[0] / self.pieceSize[0])
 
-
-g = Game((500, 500))
-g.run()
+    def handleClick(self, position):
+        if (self.state == 'ask'):
+            if (position[0] < self.screenSize[0] / 2):
+                self.player = 'X'
+                self.computer = 'O'
+                self.compTurn = False
+            else:
+                self.player = 'O'
+                self.computer = 'X'
+                self.compTurn = True
+            self.state = 'game'
+            return
+        index = self.getIndex(position)
+        piece = self.board.getPiece(index)
+        if (piece != '-'):
+            return 
+        self.board = self.board.getMovedBoard(index, self.player)
+        self.compTurn = True
+    
+    def compMove(self):
+        solver = Solver()
+        self.board = solver.getBestMove(self.board, self.computer)
+        self.compTurn = False
+    

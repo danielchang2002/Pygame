@@ -20,3 +20,6 @@ class Piece():
             if neighbor.getAlive():
                 alive += 1
         return alive
+
+    def toggle(self):
+        self.alive = not self.alive

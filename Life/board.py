@@ -14,7 +14,7 @@ class Board():
         for row in range(self.size[0]):
             row = []
             for col in range(self.size[1]):
-                alive = random() > 0.5
+                alive = random() < 0
                 piece = Piece(alive)
                 row.append(piece)
             self.board.append(row)
@@ -27,8 +27,10 @@ class Board():
 
     def getNeighborsList(self, row, col):
         neighbors = []
-        for r in range(row - 1 if row > 0 else row, row + 1 if row < self.size[0] - 1 else row):
-            for c in range(col - 1 if col > 0 else col, col + 1 if col < self.size[1] - 1 else col):
+        for r in range(row - 1, row + 2):
+            for c in range(col - 1, col + 2):
+                if (c < 0 or c >= self.size[1] or r < 0 or r >= self.size[0]):
+                    continue
                 if (r == row and c == col):
                     continue
                 neighbors.append(self.board[r][c])
@@ -39,13 +41,14 @@ class Board():
 
     def update(self):
         nextValues = []
-        for row in self.board:
+        for row in range(self.size[0]):
             r = []
-            for piece in row:
+            for col in range(self.size[1]):
+                piece = self.board[row][col]
                 alive = False
                 numAlive = piece.getNumAroundAlive()
                 if piece.getAlive():
-                    alive = numAlive >= 2 and numAlive <= 3
+                    alive = numAlive == 2 or numAlive == 3
                 else:
                     alive = numAlive == 3
                 r.append(alive)
@@ -56,3 +59,6 @@ class Board():
         for row in range(self.size[0]):
             for col in range(self.size[1]):
                 self.board[row][col].setAlive(nextValues[row][col])
+    
+    def handleClick(self, position):
+        self.board[position[0]][position[1]].toggle()
