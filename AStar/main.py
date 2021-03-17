@@ -16,7 +16,7 @@ YELLOW = 255, 255, 0
 
 class Sim:
     def __init__(self, size):
-        self.screenWidth, self.screenHeight = 800, 800
+        self.screenWidth, self.screenHeight = 1600, 900
         self.rows, self.cols = size[0], size[1]
         self.pieceWidth, self.pieceHeight = self.screenWidth / self.cols, self.screenHeight / self.rows
         self.modes = 'begin', 'end', 'wall', 'start'
